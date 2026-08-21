@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>🌴 Contagem Regressiva: PRAIA COM OS CRIAS 🏖️</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Plus+Jakarta+Sans:wght@500;700;800&family=Righteous&display=swap" rel="stylesheet">
+  
+  <!-- Anime.js & Canvas Confetti -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --sun-color: #ffd152;
+      --sunset-top: #ff5e62;
+      --sunset-mid: #ff9966;
+      --ocean-blue: #00d2ff;
+      --ocean-deep: #0072ff;
+      --sand-gold: #f6d365;
+      --card-bg: rgba(255, 255, 255, 0.22);
+      --card-border: rgba(255, 255, 255, 0.45);
+      --text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: linear-gradient(175deg, #ff4e50 0%, #f9d423 35%, #4facfe 75%, #00f2fe 100%);
+      color: #ffffff;
+      position: relative;
+    }
+
+    /* Fullscreen Wrapper */
+    .app-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: clamp(8px, 2.5vh, 18px) clamp(10px, 3vw, 24px);
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Ambient Background Elements */
+    .sky-elements {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .sun {
+      position: absolute;
+      top: 3%;
+      right: 5%;
+      width: clamp(70px, 14vw, 110px);
+      height: clamp(70px, 14vw, 110px);
+      background: radial-gradient(circle, #fff176 20%, #fbc02d 80%, #f57f17 100%);
+      border-radius: 50%;
+      box-shadow: 0 0 clamp(20px, 5vw, 40px) #ffeb3b, 0 0 clamp(40px, 10vw, 80px) #ff9800;
+      cursor: pointer;
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(28px, 6vw, 45px);
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .sun:hover {
+      transform: scale(1.15) rotate(15deg);
+    }
+    .sun-rays {
+      position: absolute;
+      width: 150%;
+      height: 150%;
+      border: 3px dashed rgba(255, 235, 59, 0.4);
+      border-radius: 50%;
+      animation: spinRays 20s linear infinite;
+    }
+    @keyframes spinRays {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .floating-cloud {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(4px);
+      border-radius: 50px;
+      pointer-events: none;
+    }
+
+    .cloud-1 {
+      top: 8%;
+      left: -10%;
+      width: 130px;
+      height: 40px;
+      animation: floatCloud1 28s linear infinite;
+    }
+    .cloud-2 {
+      top: 14%;
+      left: -20%;
+      width: 170px;
+      height: 50px;
+      animation: floatCloud2 38s linear infinite 5s;
+    }
+    @keyframes floatCloud1 {
+      0% { transform: translateX(-150px); opacity: 0; }
+      10% { opacity: 0.8; }
+      90% { opacity: 0.8; }
+      100% { transform: translateX(115vw); opacity: 0; }
+    }
+    @keyframes floatCloud2 {
+      0% { transform: translateX(-200px); opacity: 0; }
+      10% { opacity: 0.6; }
+      90% { opacity: 0.6; }
+      100% { transform: translateX(120vw); opacity: 0; }
+    }
+
+    /* Floating beach emojis */
+    .floating-item {
+      position: absolute;
+      font-size: clamp(24px, 5vw, 36px);
+      pointer-events: auto;
+      cursor: pointer;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+      transition: transform 0.2s;
+    }
+    .floating-item:hover {
+      transform: scale(1.3) rotate(20deg);
+    }
+
+    /* Header Section */
+    .header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      z-index: 10;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: clamp(3px, 0.8vh, 6px) clamp(10px, 3vw, 16px);
+      border-radius: 999px;
+      font-size: clamp(0.7rem, 2.2vw, 0.85rem);
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: clamp(4px, 1vh, 8px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      animation: pulseBadge 2.5s infinite ease-in-out;
+    }
+    @keyframes pulseBadge {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); background: rgba(0, 0, 0, 0.35); }
+    }
+
+    .main-title {
+      font-family: 'Righteous', 'Fredoka', cursive;
+      font-size: clamp(1.45rem, 5.8vw, 2.4rem);
+      line-height: 1.1;
+      text-shadow: 0 3px 12px rgba(0,0,0,0.35), 0 0 25px rgba(255, 215, 0, 0.4);
+      background: linear-gradient(180deg, #ffffff 30%, #fff275 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: clamp(2px, 0.6vh, 6px);
+    }
+
+    .subtitle-rotator {
+      font-size: clamp(0.78rem, 2.7vw, 0.98rem);
+      font-weight: 600;
+      color: #fffde7;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      min-height: 1.3em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    /* Countdown Grid Section */
+    .countdown-section {
+      width: 100%;
+      max-width: 580px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(8px, 1.8vh, 14px);
+      z-index: 10;
+    }
+
+    .timer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: clamp(6px, 2vw, 12px);
+      width: 100%;
+    }
+
+    .time-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1.5px solid var(--card-border);
+      border-radius: clamp(14px, 3.5vw, 20px);
+      padding: clamp(8px, 1.8vh, 16px) clamp(4px, 1vw, 8px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.18), inset 0 1px 1px rgba(255,255,255,0.6);
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .time-card:active {
+      transform: scale(0.94);
+    }
+    .time-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .time-number {
+      font-family: 'Righteous', 'Fredoka', sans-serif;
+      font-size: clamp(1.8rem, 7.8vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1;
+      color: #ffffff;
+      text-shadow: 0 3px 10px rgba(0,0,0,0.35);
+      position: relative;
+    }
+
+    .time-label {
+      font-family: 'Fredoka', sans-serif;
+      font-size: clamp(0.65rem, 2.2vw, 0.82rem);
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #ffeaa7;
+      margin-top: clamp(2px, 0.6vh, 6px);
+      text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    /* Live status / Stress Bar */
+    .stress-meter-box {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.28);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: clamp(10px, 2.5vw, 16px);
+      padding: clamp(6px, 1.2vh, 10px) clamp(10px, 3vw, 16px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+    }
+
+    .stress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: clamp(0.7rem, 2.4vw, 0.82rem);
+      font-weight: 700;
+      margin-bottom: clamp(3px, 0.6vh, 6px);
+      color: #fff9c4;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: clamp(8px, 1.5vh, 11px);
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 93%;
+      background: linear-gradient(90deg, #ff9ff3, #feca57, #ff6b6b, #00d2d3);
+      background-size: 300% 100%;
+      animation: progressGlow 3s ease infinite;
+      border-radius: 999px;
+      box-shadow: 0 0 12px rgba(255, 107, 107, 0.8);
+    }
+    @keyframes progressGlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .stress-tagline {
+      font-size: clamp(0.68rem, 2.2vw, 0.78rem);
+      font-weight: 600;
+      text-align: center;
+      margin-top: clamp(3px, 0.6vh, 5px);
+      color: #ffffff;
+      opacity: 0.95;
+    }
+
+    /* Interactive Fun Deck (Cards / Buttons) */
+    .fun-deck {
+      width: 100%;
+      max-width: 580px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(6px, 2vw, 10px);
+      z-index: 10;
+    }
+
+    .fun-btn {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(12px);
+      border: 1.5px solid rgba(255, 255, 255, 0.4);
+      border-radius: clamp(12px, 3vw, 18px);
+      padding: clamp(8px, 1.5vh, 12px) clamp(4px, 1.5vw, 8px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      color: white;
+      gap: 3px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .fun-btn:hover {
+      background: rgba(255, 255, 255, 0.32);
+      transform: translateY(-2px);
+    }
+    .fun-btn:active {
+      transform: scale(0.92);
+    }
+
+    .btn-icon {
+      font-size: clamp(1.2rem, 4.5vw, 1.7rem);
+      line-height: 1;
+    }
+    .btn-title {
+      font-family: 'Fredoka', sans-serif;
+      font-size: clamp(0.68rem, 2.2vw, 0.8rem);
+      font-weight: 700;
+      line-height: 1.1;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .btn-desc {
+      font-size: clamp(0.55rem, 1.8vw, 0.65rem);
+      opacity: 0.85;
+    }
+
+    /* Big Party / Panic Button */
+    .party-action-box {
+      width: 100%;
+      max-width: 580px;
+      z-index: 10;
+    }
+
+    .btn-super-panic {
+      width: 100%;
+      background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
+      border: 2px solid #ffffff;
+      border-radius: clamp(14px, 3.5vw, 22px);
+      padding: clamp(8px, 1.8vh, 13px) 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: 'Righteous', 'Fredoka', sans-serif;
+      font-size: clamp(0.85rem, 3.2vw, 1.15rem);
+      letter-spacing: 0.5px;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(255, 8, 68, 0.5), inset 0 2px 3px rgba(255,255,255,0.6);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-super-panic:hover {
+      transform: scale(1.02);
+      box-shadow: 0 10px 30px rgba(255, 8, 68, 0.7);
+    }
+    .btn-super-panic:active {
+      transform: scale(0.95);
+    }
+    .btn-super-panic::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -100%;
+      width: 50%;
+      height: 200%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      transform: rotate(25deg);
+      animation: shineBtn 3.5s infinite;
+    }
+    @keyframes shineBtn {
+      0% { left: -100%; }
+      30% { left: 200%; }
+      100% { left: 200%; }
+    }
+
+    /* Ocean Waves Footer */
+    .waves-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: clamp(75px, 16vh, 125px);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .wave-svg {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 200%;
+      height: 100%;
+    }
+
+    .wave1 {
+      fill: rgba(0, 210, 255, 0.45);
+      animation: moveWave 9s linear infinite;
+    }
+    .wave2 {
+      fill: rgba(0, 168, 255, 0.6);
+      animation: moveWave 6s linear infinite reverse;
+    }
+    .wave3 {
+      fill: #0097e6;
+      animation: moveWave 4s linear infinite;
+    }
+
+    @keyframes moveWave {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Audio Toggle and Mini Credit */
+    .footer-bar {
+      width: 100%;
+      max-width: 580px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      font-size: clamp(0.62rem, 2vw, 0.72rem);
+      color: rgba(255, 255, 255, 0.85);
+      padding: 0 4px;
+    }
+
+    .audio-btn {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      border-radius: 999px;
+      padding: clamp(3px, 0.6vh, 5px) clamp(8px, 2.5vw, 12px);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: inherit;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .audio-btn:hover {
+      background: rgba(0, 0, 0, 0.55);
+    }
+
+    /* Modal / Popups (Humor & Excuses) */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: linear-gradient(135deg, #2d3436 0%, #1e272e 100%);
+      border: 2px solid #ffd32a;
+      border-radius: 24px;
+      padding: clamp(16px, 3vh, 26px);
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(255, 211, 42, 0.3);
+    }
+
+    .modal-icon {
+      font-size: clamp(2.5rem, 8vw, 3.5rem);
+      margin-bottom: 8px;
+    }
+
+    .modal-title {
+      font-family: 'Righteous', 'Fredoka', cursive;
+      font-size: clamp(1.2rem, 4vw, 1.5rem);
+      color: #ffd32a;
+      margin-bottom: 10px;
+    }
+
+    .modal-content {
+      font-size: clamp(0.9rem, 3vw, 1.05rem);
+      font-weight: 600;
+      line-height: 1.4;
+      color: #f1f2f6;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 16px;
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px dashed rgba(255, 255, 255, 0.2);
+    }
+
+    .modal-btn {
+      background: #ffd32a;
+      color: #1e272e;
+      border: none;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 12px;
+      padding: 10px 20px;
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.15s;
+    }
+    .modal-btn:active {
+      transform: scale(0.96);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      background: none;
+      border: none;
+      color: #d2dae2;
+      font-size: 1.4rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    /* Crab dance animation in party mode */
+    .party-crab {
+      position: absolute;
+      bottom: clamp(15px, 4vh, 35px);
+      font-size: clamp(28px, 6vw, 42px);
+      z-index: 8;
+      cursor: pointer;
+      display: none;
+    }
+    .crab-left {
+      left: 8%;
+    }
+    .crab-right {
+      right: 8%;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sky & Ambient Elements -->
+  <div class="sky-elements">
+    <!-- Interactive Sun -->
+    <div class="sun" id="beachSun" title="Clique no Solzão!">
+      <div class="sun-rays"></div>
+      <span id="sunEmoji">😎</span>
+    </div>
+
+    <!-- Floating Clouds -->
+    <div class="floating-cloud cloud-1"></div>
+    <div class="floating-cloud cloud-2"></div>
+
+    <!-- Floating Beach Vibes -->
+    <div class="floating-item" id="floatCoconut" style="top: 28%; left: 4%;" title="Água de coco!">🥥</div>
+    <div class="floating-item" id="floatDrink" style="top: 32%; right: 4%;" title="Caipirinha time!">🍹</div>
+    <div class="floating-item" id="floatBall" style="top: 55%; left: 8%;" title="Quica a bola!">🏐</div>
+    <div class="floating-item" id="floatFlamingo" style="top: 58%; right: 6%;" title="Boia de Flamingo!">🦩</div>
+  </div>
+
+  <!-- Dancing Crabs (Show in Party Mode) -->
+  <div class="party-crab crab-left" id="crab1">🦀</div>
+  <div class="party-crab crab-right" id="crab2">🦀</div>
+
+  <!-- Ocean Waves -->
+  <div class="waves-container">
+    <svg class="wave-svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+      <path class="wave1" d="M0,0 C150,90 350,-40 500,60 C650,160 900,10 1200,40 L1200,120 L0,120 Z"></path>
+      <path class="wave2" d="M0,20 C200,100 450,-20 700,70 C950,150 1050,30 1200,60 L1200,120 L0,120 Z"></path>
+      <path class="wave3" d="M0,40 C300,120 600,0 900,80 C1050,110 1150,50 1200,70 L1200,120 L0,120 Z"></path>
+    </svg>
+  </div>
+
+  <!-- Main Viewport Content (No Scroll Guaranteed) -->
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <header class="header">
+      <div class="badge" id="tripBadge">
+        <span>🏖️</span>
+        <span>OPERAÇÃO FUGA DA CLT • 28/11/2026</span>
+      </div>
+      <h1 class="main-title" id="pageTitle">VIAGEM PRA PRAIA! 🌴</h1>
+      <div class="subtitle-rotator" id="funnySubtitle">
+        <span>Carregando protetor solar e desculpas...</span>
+      </div>
+    </header>
+
+    <!-- Center: The Big Countdown -->
+    <main class="countdown-section">
+      <div class="timer-grid">
+        <div class="time-card" id="cardDays" onclick="pulseCard('cardDays')">
+          <div class="time-number" id="days">--</div>
+          <div class="time-label">Dias</div>
+        </div>
+        <div class="time-card" id="cardHours" onclick="pulseCard('cardHours')">
+          <div class="time-number" id="hours">--</div>
+          <div class="time-label">Horas</div>
+        </div>
+        <div class="time-card" id="cardMins" onclick="pulseCard('cardMins')">
+          <div class="time-number" id="mins">--</div>
+          <div class="time-label">Min</div>
+        </div>
+        <div class="time-card" id="cardSecs" onclick="pulseCard('cardSecs')">
+          <div class="time-number" id="secs">--</div>
+          <div class="time-label">Seg</div>
+        </div>
+      </div>
+
+      <!-- Hilarious CLT Stress Progress Bar -->
+      <div class="stress-meter-box" onclick="cycleStressPhrase()">
+        <div class="stress-header">
+          <span>🔋 Bateria Social CLT: 2%</span>
+          <span id="beerRatio">🍻 0 latinhas abertas</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill"></div>
+        </div>
+        <div class="stress-tagline" id="stressText">
+          "Fingindo produtividade enquanto calculo o preço do milho na praia" 🌽
+        </div>
+      </div>
+    </main>
+
+    <!-- Interactive Fun Strip -->
+    <section class="fun-deck">
+      <div class="fun-btn" onclick="openExcuseModal()">
+        <div class="btn-icon">📋</div>
+        <div class="btn-title">Desculpa RH</div>
+        <div class="btn-desc">Gere pro chefe</div>
+      </div>
+
+      <div class="fun-btn" onclick="openRoleModal()">
+        <div class="btn-icon">🎭</div>
+        <div class="btn-title">Quem é Você?</div>
+        <div class="btn-desc">No grupo dos crias</div>
+      </div>
+
+      <div class="fun-btn" onclick="openSurvivalModal()">
+        <div class="btn-icon">🧳</div>
+        <div class="btn-title">Kit Inimigo</div>
+        <div class="btn-desc">O que não esquecer</div>
+      </div>
+    </section>
+
+    <!-- Emergency Vacation Mode Button -->
+    <div class="party-action-box">
+      <button class="btn-super-panic" id="panicBtn" onclick="triggerBeachParty()">
+        <span>🚨</span>
+        <span>BOTÃO DO PÂNICO: FÉRIAS AGORA!</span>
+        <span>🎉</span>
+      </button>
+    </div>
+
+    <!-- Bottom Audio & Info Bar -->
+    <footer class="footer-bar">
+      <button class="audio-btn" id="audioToggle" onclick="toggleAudio()">
+        <span id="audioIcon">🔊</span>
+        <span id="audioText">Som: On</span>
+      </button>
+      <span>🌊 28/11: Destino Paraíso com os Melhores</span>
+    </footer>
+
+  </div>
+
+  <!-- Interactive Modal System -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal-card" id="modalCard" onclick="event.stopPropagation()">
+      <button class="close-btn" onclick="closeModalForce()">&times;</button>
+      <div class="modal-icon" id="modalIcon">🎭</div>
+      <h2 class="modal-title" id="modalTitle">Título</h2>
+      <div class="modal-content" id="modalBody">Conteúdo hilário aqui...</div>
+      <button class="modal-btn" id="modalActionBtn" onclick="modalActionHandler()">Sortear Outro! 🎲</button>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================
+       1. CONFIGURAÇÃO DA CONTAGEM REGRESSIVA (28/11/2026 06:00:00)
+       ========================================================== */
+    const currentYear = new Date().getFullYear();
+    // Viagem dia 28 de Novembro às 06:00 da manhã
+    let targetDate = new Date(currentYear, 10, 28, 6, 0, 0); // Mês 10 = Novembro (0-indexed)
+    
+    // Se a data já passou no ano corrente, joga pro próximo
+    if (new Date().getTime() > targetDate.getTime()) {
+      targetDate = new Date(currentYear + 1, 10, 28, 6, 0, 0);
+    }
+
+    /* ==========================================================
+       2. WEB AUDIO API - EFEITOS SONOROS TROPICAIS & ENGRAÇADOS
+       ========================================================== */
+    let audioEnabled = true;
+    let audioCtx = null;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) audioCtx = new AudioContext();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playSound(type) {
+      if (!audioEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+
+        if (type === 'pop') {
+          // Garrafa de cerveja abrindo / pop
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(400, now);
+          osc.frequency.exponentialRampToValueAtTime(1100, now + 0.08);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.1);
+        } else if (type === 'boing') {
+          // Pulo / mola de desenho animado
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.18);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.22);
+        } else if (type === 'fanfare') {
+          // Triunfo / Festa
+          const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+          notes.forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + (i * 0.08));
+            gain.gain.setValueAtTime(0.2, now + (i * 0.08));
+            gain.gain.exponentialRampToValueAtTime(0.001, now + (i * 0.08) + 0.3);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + (i * 0.08));
+            osc.stop(now + (i * 0.08) + 0.32);
+          });
+        } else if (type === 'wave') {
+          // Som de brisa / maré suave
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(150, now);
+          osc.frequency.linearRampToValueAtTime(300, now + 0.25);
+          osc.frequency.linearRampToValueAtTime(120, now + 0.5);
+          gain.gain.setValueAtTime(0.05, now);
+          gain.gain.linearRampToValueAtTime(0.18, now + 0.25);
+          gain.gain.linearRampToValueAtTime(0.001, now + 0.5);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.52);
+        }
+      } catch (e) {
+        console.warn('Audio not allowed yet or not supported', e);
+      }
+    }
+
+    function toggleAudio() {
+      audioEnabled = !audioEnabled;
+      document.getElementById('audioIcon').innerText = audioEnabled ? '🔊' : '🔇';
+      document.getElementById('audioText').innerText = audioEnabled ? 'Som: On' : 'Som: Off';
+      if (audioEnabled) playSound('pop');
+    }
+
+    /* ==========================================================
+       3. CONTAGEM REGRESSIVA & ATUALIZAÇÃO CONTÍNUA
+       ========================================================== */
+    let lastSec = -1;
+    let lastMin = -1;
+    let lastHour = -1;
+    let lastDay = -1;
+
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const diff = targetDate.getTime() - now;
+
+      if (diff <= 0) {
+        document.getElementById('days').innerText = "00";
+        document.getElementById('hours').innerText = "00";
+        document.getElementById('mins').innerText = "00";
+        document.getElementById('secs').innerText = "00";
+        document.getElementById('pageTitle').innerText = "CHEGOU A HORA! 🏝️🍻";
+        document.getElementById('funnySubtitle').innerHTML = "<span>Partiu praia, ninguém me acha mais! 🏃💨</span>";
+        return;
+      }
+
+      const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+      const daysEl = document.getElementById('days');
+      const hoursEl = document.getElementById('hours');
+      const minsEl = document.getElementById('mins');
+      const secsEl = document.getElementById('secs');
+
+      if (d !== lastDay) {
+        daysEl.innerText = String(d).padStart(2, '0');
+        animateDigitFlip('cardDays');
+        lastDay = d;
+      }
+      if (h !== lastHour) {
+        hoursEl.innerText = String(h).padStart(2, '0');
+        animateDigitFlip('cardHours');
+        lastHour = h;
+      }
+      if (m !== lastMin) {
+        minsEl.innerText = String(m).padStart(2, '0');
+        animateDigitFlip('cardMins');
+        lastMin = m;
+      }
+      if (s !== lastSec) {
+        secsEl.innerText = String(s).padStart(2, '0');
+        animateDigitPulse('cardSecs');
+        lastSec = s;
+      }
+
+      // Calcula estimativa engraçada de latinhas
+      const beerEstimate = Math.max(12, Math.floor(d * 4.5));
+      document.getElementById('beerRatio').innerText = `🍻 Previsão: ~${beerEstimate} brejas geladas`;
+    }
+
+    function animateDigitFlip(elementId) {
+      if (typeof anime === 'undefined') return;
+      anime({
+        targets: `#${elementId} .time-number`,
+        scale: [0.7, 1.15, 1],
+        rotateX: [-70, 0],
+        duration: 500,
+        easing: 'easeOutBack'
+      });
+    }
+
+    function animateDigitPulse(elementId) {
+      if (typeof anime === 'undefined') return;
+      anime({
+        targets: `#${elementId} .time-number`,
+        scale: [1, 1.1, 1],
+        duration: 350,
+        easing: 'easeInOutQuad'
+      });
+    }
+
+    function pulseCard(cardId) {
+      playSound('pop');
+      if (typeof anime === 'undefined') return;
+      anime({
+        targets: `#${cardId}`,
+        scale: [1, 1.18, 0.95, 1],
+        rotate: [0, (Math.random() - 0.5) * 15, 0],
+        duration: 400,
+        easing: 'spring(1, 80, 10, 0)'
+      });
+    }
+
+    /* ==========================================================
+       4. TEXTOS ROTATIVOS E FRASES ENGRAÇADAS
+       ========================================================== */
+    const funnySubtitles = [
+      "Metas: 0 estresse, 100% de camarão e ressaca controlada 🍤",
+      "Já avisei meu fígado: se prepara que dia 28 o bicho pega 🍹",
+      "Procurando protetor fator 5000 pra não virar pimentão 🦞",
+      "Status: Só existindo no Teams até o dia 28/11 💬",
+      "A mala tá pronta desde ontem na minha imaginação 🧳",
+      "Quem não levar carvão nem entra no carro 🚗🔥",
+      "Contando os segundos pra ouvir o 'tsssk' da primeira lata 🍺",
+      "Proibido falar de trabalho na beira da praia sob pena de multa 🏖️"
+    ];
+
+    let subIndex = 0;
+    function rotateSubtitles() {
+      const subEl = document.getElementById('funnySubtitle');
+      subIndex = (subIndex + 1) % funnySubtitles.length;
+      
+      anime({
+        targets: subEl,
+        opacity: [1, 0],
+        translateY: [0, -8],
+        duration: 350,
+        easing: 'easeInQuad',
+        complete: () => {
+          subEl.innerHTML = `<span>${funnySubtitles[subIndex]}</span>`;
+          anime({
+            targets: subEl,
+            opacity: [0, 1],
+            translateY: [8, 0],
+            duration: 450,
+            easing: 'easeOutBack'
+          });
+        }
+      });
+    }
+
+    const stressPhrases = [
+      `"Fingindo produtividade enquanto pesquiso aluguel de prancha" 🏄`,
+      `"Se meu chefe me mandar e-mail dia 27, o mar responde por mim" 🌊`,
+      `"99.9% do cérebro já está ouvindo o som das ondas" 🎧`,
+      `"Estoque de piadas ruins e caipirinhas sendo abastecido" 🍋`,
+      `"Tentando não surtar na reunião de alinhamento" 🤯`,
+      `"Calibrando a boia de flamingo com muito profissionalismo" 🦩`
+    ];
+    let stressIdx = 0;
+    function cycleStressPhrase() {
+      playSound('wave');
+      stressIdx = (stressIdx + 1) % stressPhrases.length;
+      const el = document.getElementById('stressText');
+      el.innerText = stressPhrases[stressIdx];
+      anime({
+        targets: el,
+        scale: [0.95, 1.05, 1],
+        duration: 300,
+        easing: 'easeOutQuad'
+      });
+    }
+
+    /* ==========================================================
+       5. SISTEMA DE MODAIS & GERADORES ENGRAÇADOS
+       ========================================================= */
+    const excuseList = [
+      "\"Chefe, dia 27/11 peguei uma catapora marítima rara. O médico receitou 4 dias de água de coco e areia.\"",
+      "\"Infelizmente meu sinal de Wi-Fi caiu na água e o peixe levou meu notebook.\"",
+      "\"Precisei fazer uma viagem emergencial de alinhamento de chacras com o mar de Ubatuba.\"",
+      "\"Fui convocado como jurado oficial do concurso de caipirinhas do quiosque 4.\"",
+      "\"Meu médico disse que meu nível de vitamina D tá negativo e que só a praia salva.\"",
+      "\"Estou em conferência remota num fuso horário onde só é permitido usar sunga e chinelo.\""
+    ];
+
+    const rolesList = [
+      { title: "O DJ Chato da JBL 🔊", desc: "Não deixa ninguém trocar de música e coloca o mesmo pagode de 2004 em looping por 6 horas seguidas." },
+      { title: "O Camarão Desatento 🦞", desc: "Passa protetor só na testa, dorme no sol de meio-dia e passa a noite inteira dormindo de pé com dor nas costas." },
+      { title: "O Mestre Churrasqueiro Iludido 🥩", desc: "Promete picanha de cinema, mas queima todo o pão de alho e serve a carne só às 23h45." },
+      { title: "O Atleta de Areia Fake 🏐", desc: "Leva raquete de frescobol, bola de futevôlei, mas senta na cadeira na primeira rodada e só levanta pra pegar gelo." },
+      { title: "O Sommelier de Litrão 🍺", desc: "Acorda 7h da manhã conferindo se o cooler tá gelando e reclama se a latinha tiver a 1 grau acima do ponto de congelamento." },
+      { title: "O Desaparecido do Mar 🦈", desc: "Entra na água às 9h da manhã, é levado pela correnteza, faz amizade com os salva-vidas e volta às 18h com uma concha." }
+    ];
+
+    const survivalList = [
+      "🩴 1 Par de Havaianas (e rezar pra não arrebentar a correia no 1º dia)",
+      "🕶️ Óculos escuro pra disfarçar a cara de sono pós-churrasco",
+      "🧴 Protetor Solar Fator 1000 (ou pós-sol com 3 litros de camomila)",
+      "🪪 RG / Pix pronto pro tio do queijo coalho e do açaí",
+      "🔋 Carregador portátil (porque ninguém vai achar a tomada da casa)",
+      "🦩 Muita paciência pro trânsito da volta no domingo!"
+    ];
+
+    let currentModalType = 'excuse';
+
+    function openModal(type) {
+      playSound('pop');
+      currentModalType = type;
+      const overlay = document.getElementById('modalOverlay');
+      const icon = document.getElementById('modalIcon');
+      const title = document.getElementById('modalTitle');
+      const body = document.getElementById('modalBody');
+      const btn = document.getElementById('modalActionBtn');
+
+      if (type === 'excuse') {
+        icon.innerText = '📋';
+        title.innerText = 'Desculpa Oficial pro Chefe';
+        btn.innerText = 'Gerar Outra Mentira! 🎲';
+        body.innerText = excuseList[Math.floor(Math.random() * excuseList.length)];
+      } else if (type === 'role') {
+        icon.innerText = '🎭';
+        title.innerText = 'Seu Papel no Grupo';
+        btn.innerText = 'Sortear de Novo! 🎲';
+        const item = rolesList[Math.floor(Math.random() * rolesList.length)];
+        body.innerHTML = `<strong>${item.title}</strong><br><span style="font-size:0.85rem; font-weight:normal; margin-top:6px; display:block;">${item.desc}</span>`;
+      } else if (type === 'survival') {
+        icon.innerText = '🧳';
+        title.innerText = 'Checklist dos Crias';
+        btn.innerText = 'Ver Outro Item! 🎲';
+        body.innerHTML = `<strong>Dica de Ouro:</strong><br>${survivalList[Math.floor(Math.random() * survivalList.length)]}`;
+      }
+
+      overlay.classList.add('active');
+      anime({
+        targets: '#modalCard',
+        scale: [0.7, 1.05, 1],
+        opacity: [0, 1],
+        rotate: [(Math.random() - 0.5) * 8, 0],
+        duration: 350,
+        easing: 'easeOutBack'
+      });
+    }
+
+    function modalActionHandler() {
+      playSound('boing');
+      openModal(currentModalType);
+    }
+
+    function openExcuseModal() { openModal('excuse'); }
+    function openRoleModal() { openModal('role'); }
+    function openSurvivalModal() { openModal('survival'); }
+
+    function closeModalForce() {
+      playSound('pop');
+      const overlay = document.getElementById('modalOverlay');
+      anime({
+        targets: '#modalCard',
+        scale: [1, 0.8],
+        opacity: [1, 0],
+        duration: 200,
+        easing: 'easeInQuad',
+        complete: () => {
+          overlay.classList.remove('active');
+        }
+      });
+    }
+
+    function closeModal(e) {
+      if (e.target.id === 'modalOverlay') {
+        closeModalForce();
+      }
+    }
+
+    /* ==========================================================
+       6. BOTÃO DO PÂNICO: MODO FESTA TROPICAL COMPLETO
+       ========================================================== */
+    let partyActive = false;
+
+    function triggerBeachParty() {
+      playSound('fanfare');
+      partyActive = true;
+
+      // Dispara confetes com paleta de cores de praia
+      if (typeof confetti !== 'undefined') {
+        const defaults = {
+          origin: { y: 0.7 },
+          colors: ['#ff4757', '#ffa502', '#2ed573', '#1e90ff', '#ffffff', '#ffd32a']
+        };
+
+        confetti({
+          ...defaults,
+          particleCount: 80,
+          spread: 70,
+          origin: { x: 0.2, y: 0.6 }
+        });
+        confetti({
+          ...defaults,
+          particleCount: 80,
+          spread: 70,
+          origin: { x: 0.8, y: 0.6 }
+        });
+      }
+
+      // Animação espetacular com Anime.js nos cards de contagem
+      anime({
+        targets: '.time-card',
+        translateY: [0, -18, 0],
+        rotate: () => anime.random(-12, 12),
+        scale: [1, 1.15, 1],
+        delay: anime.stagger(80),
+        duration: 700,
+        easing: 'easeOutElastic(1, .5)'
+      });
+
+      // Animação no Sol
+      const sun = document.getElementById('beachSun');
+      const sunEmoji = document.getElementById('sunEmoji');
+      sunEmoji.innerText = '🥳';
+      anime({
+        targets: sun,
+        scale: [1, 1.4, 1],
+        rotate: '+=360',
+        duration: 1000,
+        easing: 'easeOutBack',
+        complete: () => {
+          setTimeout(() => { sunEmoji.innerText = '😎'; }, 3000);
+        }
+      });
+
+      // Caranguejos dançantes
+      const crab1 = document.getElementById('crab1');
+      const crab2 = document.getElementById('crab2');
+      crab1.style.display = 'block';
+      crab2.style.display = 'block';
+
+      anime({
+        targets: [crab1, crab2],
+        translateY: [20, 0, -15, 0],
+        rotate: [-15, 15, -15, 0],
+        loop: 4,
+        duration: 600,
+        easing: 'easeInOutQuad',
+        complete: () => {
+          crab1.style.display = 'none';
+          crab2.style.display = 'none';
+        }
+      });
+
+      // Efeito de vibração no título
+      anime({
+        targets: '#pageTitle',
+        scale: [1, 1.18, 1],
+        color: ['#ffffff', '#ffd32a', '#ffffff'],
+        duration: 600,
+        easing: 'easeOutBounce'
+      });
+    }
+
+    /* ==========================================================
+       7. ELEMENTOS INTERATIVOS FLUTUANTES (CLIQUE E ANIMAÇÃO)
+       ========================================================== */
+    function setupFloatingInteractions() {
+      const items = [
+        { id: 'beachSun', sound: 'boing', effect: 'sun' },
+        { id: 'floatCoconut', sound: 'pop', effect: 'spin' },
+        { id: 'floatDrink', sound: 'pop', effect: 'wiggle' },
+        { id: 'floatBall', sound: 'boing', effect: 'bounce' },
+        { id: 'floatFlamingo', sound: 'wave', effect: 'float' }
+      ];
+
+      items.forEach(item => {
+        const el = document.getElementById(item.id);
+        if (!el) return;
+
+        el.addEventListener('click', () => {
+          playSound(item.sound);
+          if (typeof anime === 'undefined') return;
+
+          if (item.effect === 'bounce') {
+            anime({
+              targets: el,
+              translateY: [0, -35, 0],
+              scaleX: [1, 1.3, 0.8, 1],
+              scaleY: [1, 0.8, 1.3, 1],
+              duration: 600,
+              easing: 'easeOutBounce'
+            });
+          } else if (item.effect === 'spin') {
+            anime({
+              targets: el,
+              rotate: '+=360',
+              scale: [1, 1.4, 1],
+              duration: 700,
+              easing: 'easeOutBack'
+            });
+          } else if (item.effect === 'wiggle') {
+            anime({
+              targets: el,
+              rotate: [-25, 25, -15, 15, 0],
+              scale: [1, 1.3, 1],
+              duration: 500,
+              easing: 'easeInOutQuad'
+            });
+          } else if (item.effect === 'sun') {
+            triggerBeachParty();
+          } else {
+            anime({
+              targets: el,
+              scale: [1, 1.4, 1],
+              duration: 400,
+              easing: 'easeOutBack'
+            });
+          }
+        });
+      });
+
+      // Animação de entrada suave com Anime.js
+      if (typeof anime !== 'undefined') {
+        anime.timeline({ easing: 'easeOutBack' })
+          .add({
+            targets: '.header',
+            opacity: [0, 1],
+            translateY: [-30, 0],
+            duration: 700
+          })
+          .add({
+            targets: '.time-card',
+            opacity: [0, 1],
+            scale: [0.6, 1],
+            delay: anime.stagger(100),
+            duration: 600
+          }, '-=400')
+          .add({
+            targets: ['.stress-meter-box', '.fun-deck', '.party-action-box', '.footer-bar'],
+            opacity: [0, 1],
+            translateY: [20, 0],
+            delay: anime.stagger(80),
+            duration: 500
+          }, '-=300');
+
+        // Respiração contínua dos elementos flutuantes
+        anime({
+          targets: '#floatCoconut',
+          translateY: [-8, 8],
+          rotate: [-5, 5],
+          direction: 'alternate',
+          loop: true,
+          easing: 'easeInOutSine',
+          duration: 2600
+        });
+
+        anime({
+          targets: '#floatDrink',
+          translateY: [6, -6],
+          rotate: [4, -4],
+          direction: 'alternate',
+          loop: true,
+          easing: 'easeInOutSine',
+          duration: 3100
+        });
+
+        anime({
+          targets: '#floatFlamingo',
+          translateY: [-10, 10],
+          rotate: [-6, 6],
+          direction: 'alternate',
+          loop: true,
+          easing: 'easeInOutSine',
+          duration: 3500
+        });
+
+        anime({
+          targets: '#floatBall',
+          translateY: [8, -8],
+          rotate: [10, -10],
+          direction: 'alternate',
+          loop: true,
+          easing: 'easeInOutSine',
+          duration: 2200
+        });
+      }
+    }
+
+    /* ==========================================================
+       8. INICIALIZAÇÃO DA APLICAÇÃO
+       ========================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+      setInterval(rotateSubtitles, 5000);
+      setupFloatingInteractions();
+
+      // Primeiro clique em qualquer lugar desbloqueia o AudioContext no browser
+      document.body.addEventListener('click', () => {
+        getAudioContext();
+      }, { once: true });
+    });
+  </script>
+</body>
+</html>

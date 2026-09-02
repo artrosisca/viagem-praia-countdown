@@ -856,7 +856,7 @@
             <span class="btn-sub">Kit de Sobrevivência</span>
           </div>
 
-          <div class="editorial-btn" onclick="openModal('playlist')">
+          <div class="editorial-btn" onclick="openSpotifyDirect()">
             <span class="btn-title">Playlist Van</span>
             <span class="btn-sub">Hit dos Crias • Spotify</span>
           </div>
@@ -919,7 +919,6 @@
     let audioEnabled = true;
     let audioCtx = null;
     let bgMusicEl = null;
-    let wasBgMusicPlaying = false;
 
     function playBgMusic() {
       if (!bgMusicEl) {
@@ -1931,15 +1930,6 @@
         if (title) title.innerText = "Checklist do Guarujá";
         if (actionBtn) actionBtn.style.display = "none";
         renderChecklistModal();
-      } else if (type === 'playlist') {
-        if (stamp) stamp.innerText = "SOM DA VAN";
-        if (title) title.innerText = "Trilha da Barca 🎧";
-        if (actionBtn) actionBtn.style.display = "none";
-        if (bgMusicEl && !bgMusicEl.paused) {
-          wasBgMusicPlaying = true;
-          bgMusicEl.pause();
-        }
-        renderPlaylistModal();
       }
 
       if (typeof anime !== 'undefined') {
@@ -1999,25 +1989,23 @@
       body.innerHTML = html;
     }
 
-    function renderPlaylistModal() {
-      const body = document.getElementById('modalBody');
-      if (!body) return;
-      body.style.padding = '6px';
-      body.style.marginBottom = '4px';
-      body.innerHTML = `
-        <div style="border-radius: 12px; overflow: hidden; width: 100%; box-shadow: 0 4px 16px rgba(0,0,0,0.18); background: #121212;">
-          <iframe
-            style="border-radius:12px; display:block; border:none;"
-            src="https://open.spotify.com/embed/playlist/7IeHBqAbvHRih1vLY9wuri?utm_source=generator&theme=0"
-            width="100%"
-            height="352"
-            frameBorder="0"
-            allowfullscreen=""
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            loading="lazy">
-          </iframe>
-        </div>
-      `;
+    function openSpotifyDirect() {
+      playSound('tap');
+      const appUri = 'spotify:playlist:7IeHBqAbvHRih1vLY9wuri';
+      const webUrl = 'https://open.spotify.com/playlist/7IeHBqAbvHRih1vLY9wuri';
+
+      if (bgMusicEl && !bgMusicEl.paused) {
+        bgMusicEl.pause();
+      }
+
+      const start = Date.now();
+      window.location.href = appUri;
+
+      setTimeout(() => {
+        if (!document.hidden && Date.now() - start < 1600) {
+          window.open(webUrl, '_blank');
+        }
+      }, 900);
     }
 
     function saveChecklist(id, val) {
@@ -2040,15 +2028,6 @@
       playSound('tap');
       const overlay = document.getElementById('modalOverlay');
       if (overlay) overlay.classList.remove('active');
-      const body = document.getElementById('modalBody');
-      if (body) {
-        body.style.padding = '';
-        body.style.marginBottom = '';
-      }
-      if (currentModalType === 'playlist' && wasBgMusicPlaying && audioEnabled) {
-        playBgMusic();
-        wasBgMusicPlaying = false;
-      }
     }
 
     function closeModalDirect(e) {

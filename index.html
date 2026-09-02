@@ -30,6 +30,7 @@
       --gold-accent: #c49a45;
       --gold-light: #dfb96c;
       --red-alert: #a8281a;
+      --green-confirmed: #15803d;
       
       --font-display: 'Cinzel', serif;
       --font-sans: 'Outfit', 'Plus Jakarta Sans', sans-serif;
@@ -340,7 +341,7 @@
       line-height: 1.2;
     }
     .data-value.highlight {
-      color: var(--red-alert);
+      color: var(--green-confirmed);
     }
 
     /* Telegrama de Bordo */
@@ -559,15 +560,17 @@
       border-top: 1px dashed #d5c3ab;
       width: 100%;
       box-sizing: border-box;
+      gap: 12px;
     }
 
     .footer-route-stamp {
       font-family: var(--font-mono);
-      font-size: clamp(0.58rem, 2vw, 0.65rem);
+      font-size: clamp(0.62rem, 2.3vw, 0.72rem);
       font-weight: 700;
       color: #8a745b;
       letter-spacing: 0.8px;
       text-transform: uppercase;
+      white-space: nowrap;
     }
 
     .control-pill-btn {
@@ -758,7 +761,7 @@
           </div>
 
           <div class="route-arrow-box">
-            <span class="flight-num">MIS-2811</span>
+            <span class="flight-num">MIS-2611</span>
             <div class="route-line"></div>
           </div>
 
@@ -782,7 +785,7 @@
 
           <div class="data-item">
             <span class="data-label">Embarque Oficial</span>
-            <span class="data-value">28/11/2026 • 06:00 AM</span>
+            <span class="data-value">26/11/2026 • 06:00 AM</span>
           </div>
 
           <div class="data-item">
@@ -858,11 +861,7 @@
         </button>
 
         <footer class="ticket-footer-row">
-          <button class="control-pill-btn" onclick="toggleAudioMode()">
-            <span id="audioStatus">Áudio: Ligado</span>
-          </button>
-
-          <span class="footer-route-stamp">PED ➔ GJA • 28.NOV.2026</span>
+          <span class="footer-route-stamp">PED ➔ GJA • 26.NOV.2026</span>
 
           <button class="control-pill-btn" onclick="closeLetterBackToEnvelope3D()">
             Guardar
@@ -891,25 +890,44 @@
     </div>
   </div>
 
+  <!-- ÁUDIO DE FUNDO -->
+  <audio id="bgMusic" src="lulu_santos_de_repente_california.mp3" loop preload="auto"></audio>
+
   <!-- ==========================================================
        JAVASCRIPT: THREE.JS TRANSPARENTE & ANIMAÇÃO SUAVE
        ========================================================== -->
   <script>
     /* ==========================================================
-       1. DATA ALVO: 28 DE NOVEMBRO ÀS 06:00
+       1. DATA ALVO: 26 DE NOVEMBRO ÀS 06:00
        ========================================================== */
     const currentYear = new Date().getFullYear();
-    let targetDate = new Date(currentYear, 10, 28, 6, 0, 0);
+    let targetDate = new Date(currentYear, 10, 26, 6, 0, 0);
 
     if (new Date().getTime() > targetDate.getTime()) {
-      targetDate = new Date(currentYear + 1, 10, 28, 6, 0, 0);
+      targetDate = new Date(currentYear + 1, 10, 26, 6, 0, 0);
     }
 
     /* ==========================================================
-       2. WEB AUDIO API SYNTHESIZER
+       2. WEB AUDIO API SYNTHESIZER & MÚSICA DE FUNDO
        ========================================================== */
     let audioEnabled = true;
     let audioCtx = null;
+    let bgMusicEl = null;
+
+    function playBgMusic() {
+      if (!bgMusicEl) {
+        bgMusicEl = document.getElementById('bgMusic');
+      }
+      if (bgMusicEl) {
+        bgMusicEl.volume = 0.45;
+        if (bgMusicEl.paused) {
+          const playPromise = bgMusicEl.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(() => {});
+          }
+        }
+      }
+    }
 
     function initAudioContext() {
       if (!audioCtx) {
@@ -992,7 +1010,8 @@
 
     function toggleAudioMode() {
       audioEnabled = !audioEnabled;
-      document.getElementById('audioStatus').innerText = audioEnabled ? 'Áudio: Ligado' : 'Áudio: Mudo';
+      const el = document.getElementById('audioStatus');
+      if (el) el.innerText = audioEnabled ? 'Áudio: Ligado' : 'Áudio: Mudo';
       if (audioEnabled) playSound('tap');
     }
 
@@ -1079,7 +1098,7 @@
       ctx.fillText('GUARUJÁ', 0, 84);
       ctx.font = 'bold 12px "Courier Prime", monospace';
       ctx.fillStyle = '#143852';
-      ctx.fillText('R$ 28,11', 0, 100);
+      ctx.fillText('R$ 26,11', 0, 100);
       ctx.restore();
 
       // Carimbo
@@ -1100,7 +1119,7 @@
       ctx.textAlign = 'center';
       ctx.fillText('CORREIOS • SP', 0, -18);
       ctx.font = '900 16px "Outfit", sans-serif';
-      ctx.fillText('28.NOV.2026', 0, 4);
+      ctx.fillText('26.NOV.2026', 0, 4);
       ctx.font = 'bold 11px "Courier Prime", monospace';
       ctx.fillText('PEDERNEIRAS ➔ GJA', 0, 22);
 
@@ -1154,7 +1173,7 @@
 
       ctx.font = '16px "Courier Prime", monospace';
       ctx.fillStyle = '#66533f';
-      ctx.fillText('Embarque: 28/11/2026 às 06:00 AM', 90, 615);
+      ctx.fillText('Embarque: 26/11/2026 às 06:00 AM', 90, 615);
 
       return new THREE.CanvasTexture(canvas);
     }
@@ -1535,6 +1554,7 @@
       is3DOpened = true;
 
       initAudioContext();
+      playBgMusic();
       playSound('seal_break');
 
       const hint = document.getElementById('uxHintOverlay');
@@ -1794,7 +1814,7 @@
       "STATUS: Fisiologicamente no escritório, espiritualmente na Enseada",
       "AVISO: Quem não levar carvão e gelo fica na portaria da balsa",
       "METAS: Zero reuniões, 100% de porção de frutos do mar e banho de mar",
-      "ALERTA: Fígado formalmente notificado para 28 de Novembro",
+      "ALERTA: Fígado formalmente notificado para 26 de Novembro",
       "DIÁRIO: Contando os segundos pro primeiro mergulho no Tombo",
       "URGENTE: Cadeira de praia e caixa térmica despachadas na primeira classe"
     ];
@@ -1836,7 +1856,7 @@
     const rhExcuses = [
       {
         title: "Ofício de Dispensa Temporária",
-        text: "“Informo que a partir de 28/11 estarei desempenhando funções diplomáticas de extrema importância no litoral do Guarujá. Respostas de e-mail estarão sujeitas à maré.”"
+        text: "“Informo que a partir de 26/11 estarei desempenhando funções diplomáticas de extrema importância no litoral do Guarujá. Respostas de e-mail estarão sujeitas à maré.”"
       },
       {
         title: "Atestado de Vitamina D Aguda",
@@ -2032,6 +2052,7 @@
       updateCountdown();
       setInterval(updateCountdown, 1000);
       setInterval(rotateTelegram, 4800);
+      playBgMusic();
     }
 
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
@@ -2040,9 +2061,14 @@
       document.addEventListener('DOMContentLoaded', startApp);
     }
 
-    document.body.addEventListener('click', () => {
+    function ensureAudioPlayback() {
       initAudioContext();
-    }, { once: true });
+      playBgMusic();
+    }
+
+    ['click', 'touchstart', 'mousedown', 'pointerdown', 'keydown'].forEach(evt => {
+      window.addEventListener(evt, ensureAudioPlayback, { passive: true });
+    });
   </script>
 </body>
 </html>

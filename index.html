@@ -922,6 +922,8 @@
     let wasBgMusicPlaying = false;
 
     function playBgMusic() {
+      if (currentModalType === 'playlist') return;
+      if (!audioEnabled) return;
       if (!bgMusicEl) {
         bgMusicEl = document.getElementById('bgMusic');
       }
@@ -933,6 +935,16 @@
             playPromise.catch(() => {});
           }
         }
+      }
+    }
+
+    function pauseBgMusic() {
+      if (!bgMusicEl) {
+        bgMusicEl = document.getElementById('bgMusic');
+      }
+      if (bgMusicEl && !bgMusicEl.paused) {
+        wasBgMusicPlaying = true;
+        bgMusicEl.pause();
       }
     }
 
@@ -1935,10 +1947,7 @@
         if (stamp) stamp.innerText = "SOM DA VAN";
         if (title) title.innerText = "Trilha da Barca 🎧";
         if (actionBtn) actionBtn.style.display = "none";
-        if (bgMusicEl && !bgMusicEl.paused) {
-          wasBgMusicPlaying = true;
-          bgMusicEl.pause();
-        }
+        pauseBgMusic();
         renderPlaylistModal();
       }
 
@@ -2005,7 +2014,7 @@
       body.style.padding = '6px';
       body.style.marginBottom = '4px';
       body.innerHTML = `
-        <div style="border-radius: 12px; overflow: hidden; width: 100%; box-shadow: 0 4px 16px rgba(0,0,0,0.18); background: #121212;">
+        <div onpointerdown="pauseBgMusic()" ontouchstart="pauseBgMusic()" style="border-radius: 12px; overflow: hidden; width: 100%; box-shadow: 0 4px 16px rgba(0,0,0,0.18); background: #121212;">
           <iframe
             style="border-radius:12px; display:block; border:none;"
             src="https://open.spotify.com/embed/playlist/7IeHBqAbvHRih1vLY9wuri?utm_source=generator&theme=0"
@@ -2041,13 +2050,24 @@
       const overlay = document.getElementById('modalOverlay');
       if (overlay) overlay.classList.remove('active');
       const body = document.getElementById('modalBody');
-      if (body) {
-        body.style.padding = '';
-        body.style.marginBottom = '';
-      }
-      if (currentModalType === 'playlist' && wasBgMusicPlaying && audioEnabled) {
-        playBgMusic();
-        wasBgMusicPlaying = false;
+      const closingType = currentModalType;
+      currentModalType = null;
+
+      if (closingType === 'playlist') {
+        if (body) {
+          body.innerHTML = '';
+          body.style.padding = '';
+          body.style.marginBottom = '';
+        }
+        if (wasBgMusicPlaying && audioEnabled) {
+          playBgMusic();
+          wasBgMusicPlaying = false;
+        }
+      } else {
+        if (body) {
+          body.style.padding = '';
+          body.style.marginBottom = '';
+        }
       }
     }
 
@@ -2113,11 +2133,19 @@
 
     function ensureAudioPlayback() {
       initAudioContext();
-      playBgMusic();
+      if (currentModalType !== 'playlist' && audioEnabled) {
+        playBgMusic();
+      }
     }
 
     ['click', 'touchstart', 'mousedown', 'pointerdown', 'keydown'].forEach(evt => {
       window.addEventListener(evt, ensureAudioPlayback, { passive: true });
+    });
+
+    window.addEventListener('blur', () => {
+      if (currentModalType === 'playlist') {
+        pauseBgMusic();
+      }
     });
   </script>
 </body>
